@@ -8,4 +8,6 @@ SCOPE: global (Level 0)
 
 Name                 Kind         Type         Visibility   Line       Details
 --------------------------------------------------------------------------------
-main                 function     integer      -            3          
+Matrix               class        Matrix       -            3          
+init                 function     void         -            11         
+main                 function     integer      -            23         

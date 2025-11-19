@@ -5,5 +5,4 @@ func testUndeclared() => void {
 
     x := 10;
     y := 20;
-    z := undefinedFunc();
 }
