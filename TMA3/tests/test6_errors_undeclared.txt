@@ -1,0 +1,9 @@
+// Test 6: Undeclared variable errors
+
+func testUndeclared() => void {
+    local x : integer;
+
+    x := 10;
+    y := 20;
+    z := undefinedFunc();
+}

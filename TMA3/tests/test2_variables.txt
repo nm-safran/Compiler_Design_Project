@@ -1,0 +1,19 @@
+func main() => void {
+    local x: integer;
+    x := 5;
+    write(x);
+};
+
+// Test 2: Multiple variable types
+
+func calculate() => float {
+    local x : integer;
+    local y : float;
+    local z : integer;
+
+    x := 5;
+    y := 3.14;
+    z := x + 10;
+
+    return (y);
+}

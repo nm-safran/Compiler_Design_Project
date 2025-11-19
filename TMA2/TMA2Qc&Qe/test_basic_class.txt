@@ -1,0 +1,9 @@
+// Test File 1: test_basic_class.txt
+// Tests basic class declaration with inheritance and members
+class Animal isa Movable {
+    public attribute name: integer;
+    private attribute age: float;
+    public func getName() => integer;
+    private func setAge(newAge: float) => void;
+    public constructor(n: integer, a: float);
+};

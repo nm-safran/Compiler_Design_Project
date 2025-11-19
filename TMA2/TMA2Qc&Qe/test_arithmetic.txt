@@ -1,0 +1,19 @@
+// Test File 12: test_arithmetic.txt
+// Tests complex arithmetic expressions
+func mathOperations() => void {
+    local a: integer;
+    local b: integer;
+    local c: float;
+    local result: float;
+
+    a := 10;
+    b := 5;
+    c := 3.14;
+
+    result := a + b * c / 2.0 - 1.5;
+    result := (a + b) * (c - 1.0);
+    result := -a + +b * -c;
+    result := not (a == b) and (c > 0.0);
+
+    write(result);
+}

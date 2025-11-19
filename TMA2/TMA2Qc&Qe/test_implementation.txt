@@ -1,0 +1,13 @@
+// Test File 4: test_implementation.txt
+// Tests implementation blocks
+implement Calculator {
+    func add(a: integer, b: integer) => integer {
+        return (a + b);
+    }
+
+    func multiply(x: float, y: float) => float {
+        local result: float;
+        result := x * y;
+        return (result);
+    }
+}

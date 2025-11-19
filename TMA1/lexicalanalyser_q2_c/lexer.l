@@ -1,0 +1,74 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "y.tab.h"
+
+struct token {
+    char* type;    /* Token type: KEYWORD, DELIMITER, IDENTIFIER, CONSTANT */
+    char* lexeme;  /* Actual string */
+    int line;      /* Line number */
+    int column;    /* Column number */
+};
+
+struct token* create_token(char* type, char* lexeme, int line, int column) {
+    struct token* t = malloc(sizeof(struct token));
+    t->type = strdup(type);
+    t->lexeme = strdup(lexeme);
+    t->line = line;
+    t->column = column;
+    return t;
+}
+
+int line = 1, column = 1;
+
+void update_position(char* text) {
+    for (int i = 0; text[i]; i++) {
+        if (text[i] == '\n') {
+            line++;
+            column = 1;
+        } else {
+            column++;
+        }
+    }
+}
+
+#define RETURN_TOKEN(type, category) { \
+    yylval.tok = create_token(category, yytext, line, column); \
+    update_position(yytext); \
+    return type; \
+}
+%}
+
+%option noyywrap
+
+%%
+
+[ \t]               { column++; } /* Skip spaces and tabs */
+\n                  { line++; column = 1; } /* Skip newlines */
+"//".*\n            { line++; column = 1; } /* Inline comment */
+"/"\*([^*]|\*+[^*/])*\*+"/" { update_position(yytext); } /* Block comment */
+"else"              RETURN_TOKEN(ELSE, "KEYWORD")
+"float"             RETURN_TOKEN(FLOAT, "KEYWORD")
+"if"                RETURN_TOKEN(IF, "KEYWORD")
+"class"             RETURN_TOKEN(CLASS, "KEYWORD")
+"attribute"         RETURN_TOKEN(ATTRIBUTE, "KEYWORD")
+[a-zA-Z][a-zA-Z0-9]* RETURN_TOKEN(ID, "IDENTIFIER")
+[1-9][0-9]*         RETURN_TOKEN(INTEGER, "CONSTANT")
+"0"                 RETURN_TOKEN(INTEGER, "CONSTANT")
+([1-9][0-9]*|0)(\.[0-9]*[1-9]|\.0)([eE][+\-]?([1-9][0-9]*|0))? RETURN_TOKEN(FLOAT_NUM, "CONSTANT")
+"+"                 RETURN_TOKEN(PLUS, "DELIMITER")
+"-"                 RETURN_TOKEN(MINUS, "DELIMITER")
+"*"                 RETURN_TOKEN(MULT, "DELIMITER")
+"/"                 RETURN_TOKEN(DIV, "DELIMITER")
+"="                 RETURN_TOKEN(EQ, "DELIMITER")
+"("                 RETURN_TOKEN(LPAREN, "DELIMITER")
+")"                 RETURN_TOKEN(RPAREN, "DELIMITER")
+"{"                 RETURN_TOKEN(LBRACE, "DELIMITER")
+"}"                 RETURN_TOKEN(RBRACE, "DELIMITER")
+","                 RETURN_TOKEN(COMMA, "DELIMITER")
+";"                 RETURN_TOKEN(SEMI, "DELIMITER")
+">"                 RETURN_TOKEN(GT, "DELIMITER")
+.                   { printf("Invalid character: %s at line %d, column %d\n", yytext, line, column); column++; }
+
+%%

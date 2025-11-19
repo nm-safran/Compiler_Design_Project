@@ -1,0 +1,82 @@
+// Test File 11: test_comprehensive.txt
+// Tests combination of all features
+class Vehicle isa Movable {
+    public attribute wheels: integer[4];
+    private attribute engine: Engine;
+    public attribute passengers: Person[];
+
+    public constructor(wheelCount: integer, eng: Engine);
+
+    public func start() => void;
+    private func checkEngine() => integer;
+    public func addPassenger(person: Person) => void;
+};
+
+class Engine {
+    private attribute power: float;
+    private attribute running: integer;
+
+    public constructor(p: float) {
+        self.power := p;
+        self.running := 0;
+    }
+
+    public func start() => integer {
+        if (self.power > 0.0) then {
+            self.running := 1;
+            return (1);
+        } else {
+            return (0);
+        };
+    }
+
+    public func stop() => void {
+        self.running := 0;
+    }
+};
+
+implement Vehicle {
+    func start() => void {
+        local status: integer;
+        status := self.engine.start();
+
+        if (status == 1) then {
+            write(1);
+        } else {
+            write(0);
+        };
+    }
+
+    func addPassenger(person: Person) => void {
+        local count: integer;
+        local i: integer;
+
+        count := 0;
+        i := 0;
+
+        while (i < 10) {
+            if (not (self.passengers[i] == person)) then {
+                count := count + 1;
+            };
+            i := i + 1;
+        };
+
+        self.passengers[count] := person;
+    }
+}
+
+func main() => integer {
+    local car: Vehicle;
+    local eng: Engine;
+    local driver: Person;
+    local temp: float;
+
+    read(temp);
+    eng := Engine(temp * 100.0);
+    car := Vehicle(4, eng);
+
+    car.start();
+    car.addPassenger(driver);
+
+    return (0);
+}

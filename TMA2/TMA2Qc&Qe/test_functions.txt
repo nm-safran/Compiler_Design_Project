@@ -1,0 +1,29 @@
+// Test File 5: test_functions.txt
+// Tests standalone function definitions
+func fibonacci(n: integer) => integer {
+    local a: integer;
+    local b: integer;
+    local temp: integer;
+
+    a := 0;
+    b := 1;
+
+    while (n > 1) {
+        temp := a + b;
+        a := b;
+        b := temp;
+        n := n - 1;
+    };
+
+    return (b);
+}
+
+func printArray(arr: integer[100], size: integer) => void {
+    local i: integer;
+    i := 0;
+
+    while (i < size) {
+        write(arr[i]);
+        i := i + 1;
+    };
+}

@@ -1,0 +1,14 @@
+// Test File 10: test_empty_constructs.txt
+// Tests empty optional constructs
+class Empty {
+};
+
+implement EmptyImpl {
+}
+
+func emptyFunction() => void {
+}
+
+func emptyParams() => integer {
+    return (42);
+}

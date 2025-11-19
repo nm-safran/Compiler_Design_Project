@@ -1,0 +1,6 @@
+// Test File 2: test_multiple_inheritance.txt
+// Tests class with multiple inheritance
+class Dog isa Animal, Pet, Companion {
+    public attribute breed: integer;
+    public func bark() => void;
+};

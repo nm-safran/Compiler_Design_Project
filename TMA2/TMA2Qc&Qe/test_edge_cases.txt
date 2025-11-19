@@ -1,0 +1,21 @@
+// Test File 13: test_edge_cases.txt
+// Tests edge cases and boundary conditions
+class TestEdges {
+    public attribute single: integer;
+
+    public constructor();
+};
+
+func edgeCases() => void {
+    local x: integer;
+
+    x := 0;
+
+    if (x) then {
+    };
+
+    while () {
+    };
+
+    return ();
+}

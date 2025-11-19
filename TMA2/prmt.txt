@@ -1,0 +1,26 @@
+win_bison -d parser.y
+win_flex lexer.l
+gcc -o parser lex.yy.c parser.tab.c -lm
+
+parser sample.txt
+
+
+REM Test each file individually
+parser test_basic_class.txt
+parser test_multiple_inheritance.txt
+parser test_arrays.txt
+parser test_implementation.txt
+parser test_functions.txt
+parser test_expressions.txt
+parser test_control_structures.txt
+parser test_method_calls.txt
+parser test_nested_calls.txt
+parser test_empty_constructs.txt
+parser test_comprehensive.txt
+parser test_arithmetic.txt
+parser test_edge_cases.txt
+
+
+Open Git Bash
+chmod +x run_tests.sh
+./run_tests.sh

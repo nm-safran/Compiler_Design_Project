@@ -1,0 +1,10 @@
+================================================================================
+                        SEMANTIC ERROR REPORT
+================================================================================
+
+Total Errors: 3
+Total Warnings: 0
+
+[ERROR] Line 8, Column 1: Undeclared variable 'x'
+[ERROR] Line 7, Column 1: Undeclared variable 'y'
+[ERROR] Line 6, Column 1: Undeclared variable 'x'

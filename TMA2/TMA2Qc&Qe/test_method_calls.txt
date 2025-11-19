@@ -1,0 +1,28 @@
+// Test File 8: test_method_calls.txt
+// Tests object method calls and qualified identifiers
+class Calculator {
+    public attribute memory: float;
+
+    public func clear() => void {
+        self.memory := 0.0;
+    }
+
+    public func add(value: float) => float {
+        self.memory := self.memory + value;
+        return (self.memory);
+    }
+
+    public constructor() {
+        self.memory := 0.0;
+    }
+}
+
+func testMethodCalls() => void {
+    local calc: Calculator;
+    local result: float;
+
+    calc.clear();
+    result := calc.add(5.5);
+    result := calc.add(calc.memory * 2.0);
+    write(result);
+}

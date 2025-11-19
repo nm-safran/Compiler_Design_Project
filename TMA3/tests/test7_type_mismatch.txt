@@ -1,0 +1,10 @@
+// Test 7: Type mismatch warnings
+
+func testTypes() => void {
+    local x : integer;
+    local y : float;
+
+    x := 10;
+    y := 3.14;
+    x := y;
+}

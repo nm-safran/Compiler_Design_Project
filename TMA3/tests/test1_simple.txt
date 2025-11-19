@@ -1,0 +1,9 @@
+// Test 1: Simple function with variables
+
+func main() => integer {
+    local x : integer;
+    local y : integer;
+    x := 10;
+    y := 20;
+    return (x);
+}

@@ -1,0 +1,23 @@
+// Test File 9: test_nested_calls.txt
+// Tests complex qualified identifiers and nested calls
+class DataProcessor {
+    public attribute data: integer[100];
+
+    public func getElement(index: integer) => integer {
+        return (self.data[index]);
+    }
+
+    public func process() => integer {
+        return (self.getElement(0) + self.getElement(1));
+    }
+}
+
+func complexAccess() => void {
+    local processor: DataProcessor;
+    local matrix: DataProcessor[10];
+    local result: integer;
+
+    result := processor.data[processor.getElement(5)];
+    result := matrix[0].getElement(processor.process());
+    result := matrix[processor.getElement(0)].process();
+}

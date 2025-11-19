@@ -1,0 +1,103 @@
+Derivation of the source program from start symbol 'prog':
+=========================================================
+1. fParams_opt -> ε
+2. returnType -> void
+3. funcHead -> func id ( fParams_opt ) => returnType
+4. type -> integer
+5. array_list_opt -> ε
+6. varDecl -> id : type array_list_opt ;
+7. localVarDecl -> local varDecl
+8. varDeclOrStmt -> localVarDecl
+9. type -> float
+10. array_list_opt -> ε
+11. varDecl -> id : type array_list_opt ;
+12. localVarDecl -> local varDecl
+13. varDeclOrStmt -> localVarDecl
+14. type -> integer
+15. array_list_opt -> ε
+16. varDecl -> id : type array_list_opt ;
+17. localVarDecl -> local varDecl
+18. varDeclOrStmt -> localVarDecl
+19. qualified_id -> id
+20. indices_opt -> ε
+21. simple_variable -> qualified_id indices_opt
+22. variable -> simple_variable
+23. primary_factor -> intLit
+24. factor -> primary_factor
+25. term_tail -> ε
+26. term -> factor term_tail
+27. addOp -> +
+28. primary_factor -> intLit
+29. factor -> primary_factor
+30. multOp -> *
+31. primary_factor -> intLit
+32. factor -> primary_factor
+33. term_tail -> ε
+34. term_tail -> multOp factor term_tail
+35. term -> factor term_tail
+36. addOp -> -
+37. primary_factor -> intLit
+38. factor -> primary_factor
+39. term_tail -> ε
+40. term -> factor term_tail
+41. arith_expr_tail -> ε
+42. arith_expr_tail -> addOp term arith_expr_tail
+43. arith_expr_tail -> addOp term arith_expr_tail
+44. arithExpr -> term arith_expr_tail
+45. rel_expr_opt -> ε
+46. expr -> arithExpr rel_expr_opt
+47. assignStat -> variable := expr
+48. statement -> assignStat ;
+49. varDeclOrStmt -> statement
+50. qualified_id -> id
+51. indices_opt -> ε
+52. simple_variable -> qualified_id indices_opt
+53. variable -> simple_variable
+54. primary_factor -> floatLit
+55. factor -> primary_factor
+56. multOp -> *
+57. primary_factor -> floatLit
+58. factor -> primary_factor
+59. term_tail -> ε
+60. term_tail -> multOp factor term_tail
+61. term -> factor term_tail
+62. addOp -> +
+63. primary_factor -> floatLit
+64. factor -> primary_factor
+65. term_tail -> ε
+66. term -> factor term_tail
+67. arith_expr_tail -> ε
+68. arith_expr_tail -> addOp term arith_expr_tail
+69. arithExpr -> term arith_expr_tail
+70. rel_expr_opt -> ε
+71. expr -> arithExpr rel_expr_opt
+72. assignStat -> variable := expr
+73. statement -> assignStat ;
+74. varDeclOrStmt -> statement
+75. qualified_id -> id
+76. indices_opt -> ε
+77. simple_variable -> qualified_id indices_opt
+78. primary_factor -> simple_variable
+79. factor -> primary_factor
+80. term_tail -> ε
+81. term -> factor term_tail
+82. arith_expr_tail -> ε
+83. arithExpr -> term arith_expr_tail
+84. relOp -> ==
+85. primary_factor -> intLit
+86. factor -> primary_factor
+87. multOp -> and
+88. qualified_id -> id
+89. indices_opt -> ε
+90. simple_variable -> qualified_id indices_opt
+91. primary_factor -> simple_variable
+92. factor -> primary_factor
+93. term_tail -> ε
+94. term_tail -> multOp factor term_tail
+95. term -> factor term_tail
+96. arith_expr_tail -> ε
+97. arithExpr -> term arith_expr_tail
+98. rel_expr_opt -> relOp arithExpr
+99. expr -> arithExpr rel_expr_opt
+
+Parse failed with errors.

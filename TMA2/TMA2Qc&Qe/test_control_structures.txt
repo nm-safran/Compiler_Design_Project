@@ -1,0 +1,24 @@
+// Test File 7: test_control_structures.txt
+// Tests if-else and while statements
+func controlFlow(limit: integer) => void {
+    local counter: integer;
+    local value: integer;
+
+    counter := 0;
+
+    while (counter < limit) {
+        read(value);
+
+        if (value > 0) then {
+            write(value * 2);
+        } else {
+            if (value < 0) then {
+                write(-value);
+            } else {
+                write(0);
+            };
+        };
+
+        counter := counter + 1;
+    };
+}

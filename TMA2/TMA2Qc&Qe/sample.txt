@@ -1,0 +1,5 @@
+class Vehicle isa Movable {
+    public attribute wheels: integer[4];
+    private func move() => void;
+    public constructor(w: integer);
+};
