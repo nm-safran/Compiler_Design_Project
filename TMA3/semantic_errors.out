@@ -2,12 +2,8 @@
                         SEMANTIC ERROR REPORT
 ================================================================================
 
-Total Errors: 6
+Total Errors: 2
 Total Warnings: 0
 
-[ERROR] Line 18, Column 1: Undeclared variable 'i'
-[ERROR] Line 18, Column 1: Undeclared variable 'i'
-[ERROR] Line 17, Column 1: Undeclared variable 'data'
-[ERROR] Line 14, Column 1: Undeclared variable 'i'
-[ERROR] Line 13, Column 1: Undeclared variable 'r'
-[ERROR] Line 13, Column 1: Undeclared variable 'rows'
+[ERROR] Line 7, Column 11: Variable 'y' already declared in this scope
+[ERROR] Line 5, Column 11: Variable 'x' already declared in this scope
