@@ -8,4 +8,4 @@ SCOPE: global (Level 0)
 
 Name                 Kind         Type         Visibility   Line       Details
 --------------------------------------------------------------------------------
-testDuplicates       function     void         -            3          
+main                 function     integer      -            3

@@ -607,6 +607,10 @@ PROGRAM (program) [line: 1]
               VARIABLE (var) [line: 5]
                 ID (x) [line: 5]
               INTLIT (10) [line: 5]
+          LIST (stmts) [line: 6]
+            RETURN (return) [line: 6]
+              VARIABLE (var) [line: 6]
+                ID (x) [line: 6]
 ```
 
 **Tree Visualization:**
@@ -828,153 +832,241 @@ SCOPE: getX [parent: Point]
 
 ---
 
-## 🚀 Advanced Features
+# TMA3 – Compiler Front-End up to Semantic Analysis
 
-### 1. Multi-Dimensional Arrays
+## 1. Scope of TMA3
 
-```c
-local matrix : integer[10][10];
-matrix[0][0] := 42;
+TMA3 extends the TMA2 parser by:
+
+- Reusing / importing lexer.l and parser.y from TMA2 (then enhanced here).
+- Adding an Abstract Syntax Tree (AST) builder.
+- Building hierarchical Symbol Tables.
+- Performing Semantic Analysis (declarations, scope, types, basic validation).
+- Producing compiler front-end outputs (ast.out, symboltable.out, semantic_errors.out).
+
+No code generation yet (reserved for later stages).
+
+## 2. Flow Overview
+
+```
+ SOURCE (.txt)
+    │
+    ├─(Flex)──> Tokens (lex.yy.c)
+    │
+    ├─(Bison)─> parse tree + semantic actions (parser.tab.c)
+    │
+    ├─ AST construction (ast.c)
+    │
+    ├─ Symbol table population (symboltable.c / semantic.c pass 1)
+    │
+    ├─ Semantic checks (semantic.c pass 2)
+    │
+    └─ Output:
+        • ast.out
+        • symboltable.out
+        • semantic_errors.out
 ```
 
-### 2. Class Inheritance
+## 3. Imported From TMA2
 
-```c
-class Animal {
-    public attribute name : string;
-}
+- lexer.l (token rules, line/column tracking)
+- parser.y (grammar rules)
+  These were copied/merged, then extended with AST node creation and semantic integration hooks.
 
-class Dog isa Animal {
-    public attribute breed : string;
-}
+## 4. Build Environment (Windows)
+
+Prerequisites (installed or available in PATH):
+
+- win_flex / win_bison
+- gcc (MinGW)
+
+Directory:
+`c:\Users\Safran\Desktop\Final Year\EEX6363_Compiler Construction\TMAs\DesignProject\TMA3`
+
+## 5. Build Steps
+
+From TMA3 folder:
+
 ```
-
-### 3. Function Overloading (Planned)
-
-```c
-func calculate(x : integer) => integer;
-func calculate(x : float) => float;
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Issue 1: "compiler.exe not found"**
-
-```batch
-# Solution: Run build.bat first
+cd TMA3
 build.bat
 ```
 
-**Issue 2: "Parse error"**
+build.bat performs:
+
+1. Cleans previous artifacts.
+2. Runs win_bison → parser.tab.c / parser.tab.h.
+3. Runs win_flex → lex.yy.c.
+4. Compiles: ast.c, symboltable.c, semantic.c, parser.tab.c, lex.yy.c.
+5. Links → compiler.exe.
+
+## 6. Running Tests
+
+After successful build:
 
 ```
-# Check syntax:
-# - All statements end with ;
-# - Parentheses match: ( )
-# - Braces match: { }
-# - Keywords spelled correctly
+compiler.exe tests\test1_simple.txt
+compiler.exe tests\test2_variables.txt
+compiler.exe tests\test3_arithmetic.txt
+compiler.exe tests\test4_class.txt
+compiler.exe tests\test5_errors_duplicate.txt
+compiler.exe tests\test6_errors_undeclared.txt
+compiler.exe tests\test7_type_mismatch.txt
+compiler.exe tests\test8_complex.txt
 ```
 
-**Issue 3: "Undeclared variable"**
+Each run generates (overwrites):
+
+- ast.out
+- symboltable.out
+- semantic_errors.out
+
+## 7. Phase Details
+
+### 7.1 Lexical Analysis (lexer.l)
+
+- Recognizes keywords (class, func, integer, float, etc.)
+- Distinguishes IDENTIFIER, CONSTANT (INTLIT / FLOATLIT), DELIMITER tokens.
+- Tracks line / column for precise error attribution.
+- Creates token structs with category and lexeme.
+
+### 7.2 Syntax Analysis (parser.y)
+
+- Bison grammar for:
+  - Classes, inheritance, implementations.
+  - Function declarations & definitions.
+  - Variable / attribute / parameter declarations.
+  - Statements: assignment, if-then-else, while, read, write, return, calls.
+  - Expressions (logical, relational, arithmetic, unary).
+  - Qualified access & array indexing.
+- Semantic actions construct AST nodes (create_node + add_child).
+
+### 7.3 AST (ast.c / ast.h)
+
+- Generic node type with:
+  - NodeType enum (PROGRAM, FUNC_DEF, VAR_DECL, ASSIGN, IF, WHILE, etc.).
+  - Children vector (dynamic expansion).
+  - Source position (line/column).
+- Printed hierarchically to ast.out for inspection.
+
+### 7.4 Symbol Tables (symboltable.c/.h)
+
+- Global scope + nested scopes (classes, functions).
+- Each symbol entry: name, kind (class/function/variable/parameter), type string, visibility, declaration line.
+- Lookup uses current scope then climbs to parents.
+
+### 7.5 Semantic Analysis (semantic.c/.h)
+
+Two passes:
+
+1. Pass 1 – Declaration collection:
+   - Registers classes, attributes, methods, local variables, parameters.
+   - Detects duplicate declarations in same scope.
+2. Pass 2 – Usage validation:
+   - Undeclared variable usage.
+   - Type assignments (basic integer vs float mismatch).
+   - Return type consistency in non-void functions.
+   - Member access validity (basic check).
+     Produces error + warning counts → semantic_errors.out.
+
+### 7.6 Error File (semantic_errors.out)
+
+Format:
 
 ```
-# Ensure:
-# - Variable declared before use
-# - Correct scope
-# - Spelling matches declaration
+================================================================================
+SEMANTIC ERROR REPORT
+================================================================================
+Total Errors: N
+Total Warnings: M
+[ERROR] Line X, Column Y: Message
+[WARNING] Line A, Column B: Message
 ```
 
----
+## 8. Output Files
 
-## 📚 References
+| File                | Purpose                            |
+| ------------------- | ---------------------------------- |
+| ast.out             | Hierarchical AST dump              |
+| symboltable.out     | All scopes with their symbols      |
+| semantic_errors.out | Collected semantic errors/warnings |
 
-### Language Grammar
+## 9. Test Expectations
 
-Based on custom object-oriented language specification from course materials.
+| Test                    | Purpose                      | Expected  |
+| ----------------------- | ---------------------------- | --------- |
+| test1_simple            | Basic function               | No errors |
+| test2_variables         | Mixed types                  | No errors |
+| test3_arithmetic        | Expression precedence        | No errors |
+| test4_class             | Class + implement            | No errors |
+| test5_errors_duplicate  | Duplicate locals             | Errors    |
+| test6_errors_undeclared | Missing variable usage       | Errors    |
+| test7_type_mismatch     | Assign float→integer         | Warning   |
+| test8_complex           | Arrays + loop + class method | No errors |
 
-### Tools Used
+## 10. Troubleshooting
 
-- **Flex:** Fast lexical analyzer generator
-- **Bison:** GNU parser generator
-- **GCC:** GNU Compiler Collection
-- **MinGW:** Minimalist GNU for Windows
+| Issue                                  | Action                                               |
+| -------------------------------------- | ---------------------------------------------------- |
+| build.bat fails (Bison/Flex not found) | Confirm win_flex.exe / win_bison.exe paths in script |
+| compiler.exe missing                   | Re-run build.bat                                     |
+| semantic_errors.out empty              | No semantic issues found                             |
+| All symbols appear only in global      | Check AST construction / scope entry logic           |
+| Line numbers off                       | Ensure lexer updates line/column for every lexeme    |
 
-### Related TMAs
+## 11. Extensibility Points
 
-- **TMA1:** Lexical Analyzer
-- **TMA2:** Syntax Analyzer
-- **TMA3:** Semantic Analyzer (this project)
+- Add richer type system (arrays dimension semantics).
+- Add inheritance-based symbol merging.
+- Add function overloading resolution.
+- Add constant folding / simple optimizations in expressions.
+- Prepare for IR code generation (next assignment).
 
----
+## 12. Minimal Internal Data Flow Example
 
-## 👨‍💻 Implementation Notes
+Source snippet:
 
-### Design Decisions
+```
+func main() => integer {
+    local x : integer;
+    x := 10;
+    return (x);
+}
+```
 
-1. **Two-Pass Semantic Analysis**
+1. Tokens: FUNC ID(main) LPAREN RPAREN ARROW INTEGER_TYPE LBRACE LOCAL ID(x) COLON INTEGER_TYPE SEMI ID(x) ASSIGN INTLIT(10) SEMI RETURN LPAREN ID(x) RPAREN SEMI RBRACE
+2. Parser builds AST nodes (FUNC_DEF → VAR_DECL → ASSIGN → RETURN).
+3. Symbol table:
+   - global: main (function)
+   - main: x (local variable)
+4. Semantic pass:
+   - Declaration ok
+   - Assignment type matches
+   - Return type matches function signature
+5. Output: zero errors.
 
-   - Pass 1: Build symbol tables (declarations)
-   - Pass 2: Type checking and validation (usage)
+## 13. Command Recap
 
-2. **Hierarchical Symbol Tables**
+```
+cd TMA3
+build.bat
+compiler.exe tests\test1_simple.txt
+compiler.exe tests\test2_variables.txt
+compiler.exe tests\test3_arithmetic.txt
+compiler.exe tests\test4_class.txt
+compiler.exe tests\test5_errors_duplicate.txt
+compiler.exe tests\test6_errors_undeclared.txt
+compiler.exe tests\test7_type_mismatch.txt
+compiler.exe tests\test8_complex.txt
+```
 
-   - Parent-child relationships for scope
-   - Hash tables for O(1) symbol lookup
+## 14. Cleanup
 
-3. **Rich Error Messages**
-   - Line and column numbers
-   - Descriptive error text
-   - Categorization (error vs warning)
+Use cleanup.bat to remove generated artifacts safely (choose mode).
 
-### Performance Considerations
+## 15. Summary
 
-- **Symbol Lookup:** O(log n) with hash tables
-- **AST Traversal:** O(n) single pass per phase
-- **Memory:** AST and symbol tables freed after compilation
-
----
-
-## 🎓 Learning Outcomes
-
-After completing this TMA, you will understand:
-
-✅ **Lexical Analysis:** Pattern matching and tokenization
-✅ **Syntax Analysis:** Context-free grammars and parsing
-✅ **Semantic Analysis:** Type systems and scope management
-✅ **Symbol Tables:** Hierarchical data structures
-✅ **Error Handling:** Comprehensive error reporting
-✅ **Compiler Design:** Multi-phase compilation architecture
-
----
-
-## 📝 License
-
-This project is for educational purposes as part of EEX6363 Compiler Construction course.
-
----
-
-## 🤝 Contributing
-
-This is a student assignment. For improvements or bug reports, contact the course instructor.
-
----
-
-## ✅ Conclusion
-
-This semantic analyzer represents the culmination of a three-phase compiler front-end implementation. It successfully:
-
-- ✅ Tokenizes source code
-- ✅ Validates syntax and builds AST
-- ✅ Performs semantic analysis
-- ✅ Manages symbol tables
-- ✅ Reports errors and warnings
-- ✅ Prepares for code generation (TMA4)
-
-**Next Steps:** Intermediate code generation and optimization.
+TMA3 delivers a functioning front-end up to semantic integrity checking. The next phase can build on these stable artifacts for intermediate representation and code generation.
 
 ---
 
