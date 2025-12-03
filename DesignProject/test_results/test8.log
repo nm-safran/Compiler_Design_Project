@@ -1,0 +1,30 @@
+================================================================================
+                    CUSTOM LANGUAGE COMPILER
+================================================================================
+Input file: tests\test8_complex.txt
+Output file: test_results\test8.s
+================================================================================
+
+[PHASE 1] Lexical & Syntax Analysis...
+[PASS] Parsing completed successfully
+
+[INFO] AST written to ast.out
+[PHASE 2] Semantic Analysis...
+  [2.1] Building symbol tables...
+
+=== Phase 1: Symbol Table Generation ===
+=== Phase 2: Type Checking ===
+[INFO] Symbol table written to symboltable.out
+[INFO] Semantic errors written to semantic_errors.out
+
+[ERROR] Semantic analysis failed with 3 error(s)
+================================================================================
+                        SEMANTIC ERROR REPORT
+================================================================================
+
+Total Errors: 3
+Total Warnings: 0
+
+[ERROR] Line 17, Column 1: Undeclared variable 'data'
+[ERROR] Line 13, Column 1: Undeclared variable 'r'
+[ERROR] Line 13, Column 1: Undeclared variable 'rows'

@@ -1,0 +1,26 @@
+// Test 8: Complex program with arrays and control flow
+
+class Matrix {
+    private attribute data : integer[10][10];
+    private attribute rows : integer;
+
+    public func init(r : integer) => void;
+};
+
+implement Matrix {
+    func init(r : integer) => void {
+        local i : integer;
+        rows := r;
+        i := 0;
+
+        while (i < r) {
+            data[i][0] := 0;
+            i := i + 1;
+        };
+    }
+}
+
+func main() => integer {
+    local m : Matrix;
+    return (0);
+}

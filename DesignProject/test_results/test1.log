@@ -1,0 +1,44 @@
+================================================================================
+                    CUSTOM LANGUAGE COMPILER
+================================================================================
+Input file: tests\test1_simple.txt
+Output file: test_results\test1.s
+================================================================================
+
+[PHASE 1] Lexical & Syntax Analysis...
+[PASS] Parsing completed successfully
+
+[INFO] AST written to ast.out
+[PHASE 2] Semantic Analysis...
+  [2.1] Building symbol tables...
+
+=== Phase 1: Symbol Table Generation ===
+=== Phase 2: Type Checking ===
+[INFO] Symbol table written to symboltable.out
+[INFO] Semantic errors written to semantic_errors.out
+[PASS] Semantic analysis completed successfully
+
+[PHASE 3] Code Generation...
+  [3.1] Generating assembly code...
+[PASS] Assembly code generated: test_results\test1.s
+
+================================================================================
+                    COMPILATION SUCCESSFUL
+================================================================================
+Generated files:
+  - test_results\test1.s (assembly code)
+  - ast.out (abstract syntax tree)
+  - symboltable.out (symbol tables)
+  - semantic_errors.out (semantic report)
+
+To assemble and link (Linux/macOS):
+  gcc test_results\test1.s -o program
+  ./program
+
+To assemble and link (Windows with MinGW):
+  gcc test_results\test1.s -o program.exe
+  program.exe
+================================================================================
+Error: Variable 'x' not found
+Error: Variable 'y' not found
+Error: Variable 'x' not found

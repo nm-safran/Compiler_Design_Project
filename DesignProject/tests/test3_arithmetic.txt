@@ -1,0 +1,13 @@
+// Test 3: Arithmetic expressions
+
+func compute() => integer {
+    local a : integer;
+    local b : integer;
+    local result : integer;
+
+    a := 10;
+    b := 5;
+    result := a + b * 2;
+
+    return (result);
+}
