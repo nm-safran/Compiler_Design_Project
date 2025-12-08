@@ -10,10 +10,11 @@
 
 .text
     # ==========================================
-    # compute
+    # main
     # ==========================================
+.globl main
     # Function prologue
-    compute:
+    main:
     pushq %rbp
     movq %rsp, %rbp
     # Reserve space for local variables
@@ -22,11 +23,7 @@
     movq $10, %rax
     movq %rax, -8(%rbp)
     # Assignment
-    movq $5, %rax
-    movq %rax, -8(%rbp)
-    # Assignment
-    movq -8(%rbp), %rax
-    addq %r10, %rax
+    movq $20, %rax
     movq %rax, -8(%rbp)
     # Return statement
     movq -8(%rbp), %rax
