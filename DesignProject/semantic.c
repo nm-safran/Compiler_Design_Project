@@ -1,6 +1,6 @@
 #include "semantic.h"
 
-SemanticContext *create_semantic_context()
+SemanticContext *create_semantic_context(const char *error_log_path)
 {
   SemanticContext *ctx = (SemanticContext *)malloc(sizeof(SemanticContext));
   ctx->global_table = create_symbol_table("global", 0, NULL);
@@ -8,7 +8,17 @@ SemanticContext *create_semantic_context()
   ctx->errors = NULL;
   ctx->error_count = 0;
   ctx->warning_count = 0;
-  ctx->error_file = fopen("semantic_errors.txt", "w");
+
+  // Allow per-test or shared logging; default to semantic_errors.txt
+  const char *path = error_log_path ? error_log_path : "semantic_errors.txt";
+  ctx->error_file = fopen(path, "w");
+  if (ctx->error_file)
+  {
+    fprintf(ctx->error_file, "================================================================================\n");
+    fprintf(ctx->error_file, "                        SEMANTIC ERROR REPORT\n");
+    fprintf(ctx->error_file, "================================================================================\n\n");
+  }
+
   return ctx;
 }
 

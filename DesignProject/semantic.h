@@ -26,7 +26,7 @@ typedef struct
 } SemanticContext;
 
 // Semantic analysis functions
-SemanticContext *create_semantic_context();
+SemanticContext *create_semantic_context(const char *error_log_path);
 void semantic_analysis(ASTNode *ast, SemanticContext *context);
 void generate_symbol_tables(ASTNode *node, SemanticContext *context);
 void type_check(ASTNode *node, SemanticContext *context);

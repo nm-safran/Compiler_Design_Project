@@ -138,7 +138,24 @@ int main(int argc, char *argv[])
   // ========================================================================
   printf("[PHASE 2] Semantic Analysis...\n");
 
-  SemanticContext *sem_ctx = create_semantic_context();
+  char error_log_path[512];
+  {
+    // Build per-test semantic error log: semantic_errors_<inputfilename>.txt
+    const char *base = strrchr(input_file, '\\');
+    if (!base)
+      base = strrchr(input_file, '/');
+    base = base ? base + 1 : input_file;
+
+    // Replace extension dot with underscore for clarity
+    snprintf(error_log_path, sizeof(error_log_path), "semantic_errors_%s.txt", base);
+    for (char *p = error_log_path; *p; ++p)
+    {
+      if (*p == '.')
+        *p = '_';
+    }
+  }
+
+  SemanticContext *sem_ctx = create_semantic_context(error_log_path);
 
   printf("  [2.1] Building symbol tables...\n");
   semantic_analysis(root, sem_ctx);
