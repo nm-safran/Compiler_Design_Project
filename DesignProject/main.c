@@ -160,6 +160,13 @@ int main(int argc, char *argv[])
   printf("  [2.1] Building symbol tables...\n");
   semantic_analysis(root, sem_ctx);
 
+  // Always write per-test semantic log (append-only behavior controlled by file open mode)
+  if (sem_ctx->error_file)
+  {
+    print_errors(sem_ctx, sem_ctx->error_file);
+    fflush(sem_ctx->error_file);
+  }
+
   // Generate symbol table output
   if (gen_sym)
   {
