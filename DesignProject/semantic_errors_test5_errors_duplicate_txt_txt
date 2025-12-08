@@ -1,0 +1,13 @@
+================================================================================
+                        SEMANTIC ERROR REPORT
+================================================================================
+
+================================================================================
+                        SEMANTIC ERROR REPORT
+================================================================================
+
+Total Errors: 2
+Total Warnings: 0
+
+[ERROR] Line 7, Column 11: Variable 'y' already declared in this scope
+[ERROR] Line 5, Column 11: Variable 'x' already declared in this scope
