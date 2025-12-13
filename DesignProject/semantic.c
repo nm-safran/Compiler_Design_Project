@@ -12,12 +12,7 @@ SemanticContext *create_semantic_context(const char *error_log_path)
   // Allow per-test or shared logging; default to semantic_errors.txt
   const char *path = error_log_path ? error_log_path : "semantic_errors.txt";
   ctx->error_file = fopen(path, "w");
-  if (ctx->error_file)
-  {
-    fprintf(ctx->error_file, "================================================================================\n");
-    fprintf(ctx->error_file, "                        SEMANTIC ERROR REPORT\n");
-    fprintf(ctx->error_file, "================================================================================\n\n");
-  }
+  // Note: Header will be written when print_errors is called
 
   return ctx;
 }

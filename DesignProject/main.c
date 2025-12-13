@@ -6,6 +6,14 @@
 #include "semantic.h"
 #include "codegen.h"
 
+#ifdef _WIN32
+#include <direct.h>
+#define mkdir _mkdir
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
 // External declarations from lexer and parser
 extern FILE *yyin;
 extern int yyparse();
@@ -28,7 +36,7 @@ int main(int argc, char *argv[])
 {
   // Default options
   char *input_file = NULL;
-  char *output_file = "output.s";
+  char *output_file = NULL; // Will be set based on input file
   int gen_ast = 0;
   int gen_sym = 0;
   int gen_sem = 0;
@@ -78,6 +86,25 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Error: No input file specified\n");
     print_usage(argv[0]);
     return 1;
+  }
+
+  // Generate output filename if not specified
+  if (!output_file)
+  {
+    // Extract base filename from input (e.g., tests/test1_simple.txt -> test1)
+    const char *base = strrchr(input_file, '\\');
+    if (!base)
+      base = strrchr(input_file, '/');
+    base = base ? base + 1 : input_file;
+
+    // Find extension
+    const char *ext = strrchr(base, '.');
+    int name_len = ext ? (ext - base) : strlen(base);
+
+    // Build output path: test_results/testN.s
+    char *output_name = (char *)malloc(256);
+    snprintf(output_name, 256, "test_results/%.*s.s", name_len, base);
+    output_file = output_name;
   }
 
   // Open input file
@@ -167,7 +194,35 @@ int main(int argc, char *argv[])
     fflush(sem_ctx->error_file);
   }
 
-  // Generate symbol table output
+  // Generate per-test symbol table output (always, not just with -sym flag)
+  {
+    // Build symbol table filename: symboltable_<inputfilename>.out
+    char sym_log_path[512];
+    const char *base = strrchr(input_file, '\\');
+    if (!base)
+      base = strrchr(input_file, '/');
+    base = base ? base + 1 : input_file;
+
+    snprintf(sym_log_path, sizeof(sym_log_path), "symboltable_%s.out", base);
+    for (char *p = sym_log_path; *p; ++p)
+    {
+      if (*p == '.')
+        *p = '_';
+    }
+
+    FILE *sym_file = fopen(sym_log_path, "w");
+    if (sym_file)
+    {
+      fprintf(sym_file, "================================================================================\n");
+      fprintf(sym_file, "                        SYMBOL TABLE REPORT\n");
+      fprintf(sym_file, "================================================================================\n");
+      print_symbol_table(sem_ctx->global_table, sym_file);
+      fclose(sym_file);
+      printf("[INFO] Symbol table written to %s\n", sym_log_path);
+    }
+  }
+
+  // Generate legacy symbol table output if -sym flag used
   if (gen_sym)
   {
     FILE *sym_file = fopen("symboltable.out", "w");
@@ -178,7 +233,7 @@ int main(int argc, char *argv[])
       fprintf(sym_file, "================================================================================\n");
       print_symbol_table(sem_ctx->global_table, sym_file);
       fclose(sym_file);
-      printf("[INFO] Symbol table written to symboltable.out\n");
+      printf("[INFO] Symbol table also written to symboltable.out\n");
     }
   }
 
@@ -217,6 +272,13 @@ int main(int argc, char *argv[])
   // PHASE 3: CODE GENERATION
   // ========================================================================
   printf("[PHASE 3] Code Generation...\n");
+
+// Ensure test_results directory exists
+#ifdef _WIN32
+  mkdir("test_results");
+#else
+  mkdir("test_results", 0755);
+#endif
 
   FILE *output = fopen(output_file, "w");
   if (!output)
