@@ -2,7 +2,5 @@
 
 func testDuplicates() => void {
     local x : integer;
-    local x : float;
-    local y : integer;
     local y : integer;
 }

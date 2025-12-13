@@ -10,27 +10,14 @@
 
 .text
     # ==========================================
-    # main
+    # testDuplicates
     # ==========================================
-.globl main
     # Function prologue
-    main:
+    testDuplicates:
     pushq %rbp
     movq %rsp, %rbp
     # Reserve space for local variables
     subq $64, %rsp
-    # Assignment
-    movq $10, %rax
-    movq %rax, -8(%rbp)
-    # Assignment
-    movq $20, %rax
-    movq %rax, -8(%rbp)
-    # Return statement
-    movq -8(%rbp), %rax
-    # Function epilogue
-    movq %rbp, %rsp
-    popq %rbp
-    ret
     movq $0, %rax
     # Function epilogue
     movq %rbp, %rsp
