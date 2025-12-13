@@ -173,13 +173,22 @@ int main(int argc, char *argv[])
       base = strrchr(input_file, '/');
     base = base ? base + 1 : input_file;
 
-    // Replace extension dot with underscore for clarity
-    snprintf(error_log_path, sizeof(error_log_path), "semantic_errors_%s.txt", base);
-    for (char *p = error_log_path; *p; ++p)
+    // Remove extension from base filename
+    char base_no_ext[256];
+    const char *ext = strrchr(base, '.');
+    if (ext)
     {
-      if (*p == '.')
-        *p = '_';
+      int len = ext - base;
+      strncpy(base_no_ext, base, len);
+      base_no_ext[len] = '\0';
     }
+    else
+    {
+      strcpy(base_no_ext, base);
+    }
+
+    // Build final path
+    snprintf(error_log_path, sizeof(error_log_path), "semantic_errors_%s.txt", base_no_ext);
   }
 
   SemanticContext *sem_ctx = create_semantic_context(error_log_path);
@@ -203,12 +212,22 @@ int main(int argc, char *argv[])
       base = strrchr(input_file, '/');
     base = base ? base + 1 : input_file;
 
-    snprintf(sym_log_path, sizeof(sym_log_path), "symboltable_%s.out", base);
-    for (char *p = sym_log_path; *p; ++p)
+    // Remove extension from base filename
+    char base_no_ext[256];
+    const char *ext = strrchr(base, '.');
+    if (ext)
     {
-      if (*p == '.')
-        *p = '_';
+      int len = ext - base;
+      strncpy(base_no_ext, base, len);
+      base_no_ext[len] = '\0';
     }
+    else
+    {
+      strcpy(base_no_ext, base);
+    }
+
+    // Build final path
+    snprintf(sym_log_path, sizeof(sym_log_path), "symboltable_%s.out", base_no_ext);
 
     FILE *sym_file = fopen(sym_log_path, "w");
     if (sym_file)
