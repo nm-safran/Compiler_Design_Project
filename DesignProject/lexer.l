@@ -26,6 +26,12 @@ struct token* create_token(char* type, char* lexeme, int line, int column) {
     return t;
 }
 
+static FILE* token_output = NULL;
+
+void set_token_output(FILE* output) {
+    token_output = output;
+}
+
 int line = 1, column = 1;
 
 void update_position(char* text) {
@@ -40,7 +46,12 @@ void update_position(char* text) {
 }
 
 #define RETURN_TOKEN(type, category) { \
-    yylval.tok = create_token(category, yytext, line, column); \
+    int start_line = line; \
+    int start_col = column; \
+    yylval.tok = create_token(category, yytext, start_line, start_col); \
+    if (token_output) { \
+        fprintf(token_output, "[%d:%d] %-12s %s\n", start_line, start_col, category, yytext); \
+    } \
     update_position(yytext); \
     return type; \
 }
@@ -50,7 +61,7 @@ void update_position(char* text) {
 
 %%
 
-[ \t]               { column++; }
+[ \t]               { update_position(yytext); }
 \n                  { line++; column = 1; }
 \/\/.*\n            { line++; column = 1; }
 \/\*([^*]|\*+[^*/])*\*+\/  { update_position(yytext); }

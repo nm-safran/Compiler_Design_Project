@@ -19,6 +19,7 @@ extern FILE *yyin;
 extern int yyparse();
 extern ASTNode *root;
 extern int line, column;
+extern void set_token_output(FILE *output);
 
 void print_usage(const char *program_name)
 {
@@ -26,6 +27,7 @@ void print_usage(const char *program_name)
   printf("Options:\n");
   printf("  -o <output>   Specify output assembly file (default: output.s)\n");
   printf("  -ast          Generate AST output file (ast.out)\n");
+  printf("  -lex          Generate lexical tokens output file\n");
   printf("  -sym          Generate symbol table output file (symboltable.out)\n");
   printf("  -sem          Generate semantic errors output file (semantic_errors.out)\n");
   printf("  -all          Generate all intermediate outputs\n");
@@ -38,6 +40,7 @@ int main(int argc, char *argv[])
   char *input_file = NULL;
   char *output_file = NULL; // Will be set based on input file
   int gen_ast = 0;
+  int gen_lex = 0;
   int gen_sym = 0;
   int gen_sem = 0;
 
@@ -57,6 +60,10 @@ int main(int argc, char *argv[])
     {
       gen_ast = 1;
     }
+    else if (strcmp(argv[i], "-lex") == 0)
+    {
+      gen_lex = 1;
+    }
     else if (strcmp(argv[i], "-sym") == 0)
     {
       gen_sym = 1;
@@ -67,7 +74,7 @@ int main(int argc, char *argv[])
     }
     else if (strcmp(argv[i], "-all") == 0)
     {
-      gen_ast = gen_sym = gen_sem = 1;
+      gen_ast = gen_sym = gen_sem = gen_lex = 1;
     }
     else if (argv[i][0] != '-')
     {
@@ -88,22 +95,39 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  // Derive base file name and name without extension for output files
+  char base_name[256];
+  char base_no_ext[256];
+  {
+    const char *base_ptr = strrchr(input_file, '\\');
+    if (!base_ptr)
+      base_ptr = strrchr(input_file, '/');
+    base_ptr = base_ptr ? base_ptr + 1 : input_file;
+
+    strncpy(base_name, base_ptr, sizeof(base_name) - 1);
+    base_name[sizeof(base_name) - 1] = '\0';
+
+    const char *ext = strrchr(base_name, '.');
+    if (ext)
+    {
+      size_t len = ext - base_name;
+      if (len >= sizeof(base_no_ext))
+        len = sizeof(base_no_ext) - 1;
+      memcpy(base_no_ext, base_name, len);
+      base_no_ext[len] = '\0';
+    }
+    else
+    {
+      strncpy(base_no_ext, base_name, sizeof(base_no_ext) - 1);
+      base_no_ext[sizeof(base_no_ext) - 1] = '\0';
+    }
+  }
+
   // Generate output filename if not specified
   if (!output_file)
   {
-    // Extract base filename from input (e.g., tests/test1_simple.txt -> test1)
-    const char *base = strrchr(input_file, '\\');
-    if (!base)
-      base = strrchr(input_file, '/');
-    base = base ? base + 1 : input_file;
-
-    // Find extension
-    const char *ext = strrchr(base, '.');
-    int name_len = ext ? (ext - base) : strlen(base);
-
-    // Build output path: test_results/testN.s
     char *output_name = (char *)malloc(256);
-    snprintf(output_name, 256, "test_results/%.*s.s", name_len, base);
+    snprintf(output_name, 256, "test_results/%s.s", base_no_ext);
     output_file = output_name;
   }
 
@@ -122,6 +146,30 @@ int main(int argc, char *argv[])
   printf("Output file: %s\n", output_file);
   printf("================================================================================\n\n");
 
+  // Optional lexical token logging
+  FILE *token_output = NULL;
+  char token_output_path[512] = {0};
+  int token_output_created = 0;
+  set_token_output(NULL);
+  if (gen_lex)
+  {
+    snprintf(token_output_path, sizeof(token_output_path), "tokens_%s.txt", base_no_ext);
+    token_output = fopen(token_output_path, "w");
+    if (token_output)
+    {
+      fprintf(token_output, "================================================================================\n");
+      fprintf(token_output, "                         LEXICAL TOKENS\n");
+      fprintf(token_output, "================================================================================\n\n");
+      fprintf(token_output, "Format: [line:col] CATEGORY     lexeme\n\n");
+      set_token_output(token_output);
+      token_output_created = 1;
+    }
+    else
+    {
+      fprintf(stderr, "[WARN] Could not open token log file: %s\n", token_output_path);
+    }
+  }
+
   // ========================================================================
   // PHASE 1: LEXICAL ANALYSIS & SYNTAX ANALYSIS
   // ========================================================================
@@ -131,6 +179,11 @@ int main(int argc, char *argv[])
 
   if (parse_result != 0)
   {
+    if (token_output)
+    {
+      fclose(token_output);
+      set_token_output(NULL);
+    }
     fprintf(stderr, "\n[ERROR] Parsing failed!\n");
     fclose(yyin);
     return 1;
@@ -138,6 +191,11 @@ int main(int argc, char *argv[])
 
   if (!root)
   {
+    if (token_output)
+    {
+      fclose(token_output);
+      set_token_output(NULL);
+    }
     fprintf(stderr, "\n[ERROR] No AST generated!\n");
     fclose(yyin);
     return 1;
@@ -145,10 +203,21 @@ int main(int argc, char *argv[])
 
   printf("[PASS] Parsing completed successfully\n\n");
 
+  if (token_output)
+  {
+    fclose(token_output);
+    set_token_output(NULL);
+    if (token_output_created)
+      printf("[INFO] Lexical tokens written to %s\n", token_output_path);
+    token_output = NULL;
+  }
+
   // Optionally output AST
   if (gen_ast)
   {
-    FILE *ast_file = fopen("ast.out", "w");
+    char ast_path[512];
+    snprintf(ast_path, sizeof(ast_path), "ast_%s.out", base_no_ext);
+    FILE *ast_file = fopen(ast_path, "w");
     if (ast_file)
     {
       fprintf(ast_file, "================================================================================\n");
@@ -156,7 +225,7 @@ int main(int argc, char *argv[])
       fprintf(ast_file, "================================================================================\n\n");
       print_ast(root, 0, ast_file);
       fclose(ast_file);
-      printf("[INFO] AST written to ast.out\n");
+      printf("[INFO] AST written to %s\n", ast_path);
     }
   }
 
@@ -166,30 +235,7 @@ int main(int argc, char *argv[])
   printf("[PHASE 2] Semantic Analysis...\n");
 
   char error_log_path[512];
-  {
-    // Build per-test semantic error log: semantic_errors_<inputfilename>.txt
-    const char *base = strrchr(input_file, '\\');
-    if (!base)
-      base = strrchr(input_file, '/');
-    base = base ? base + 1 : input_file;
-
-    // Remove extension from base filename
-    char base_no_ext[256];
-    const char *ext = strrchr(base, '.');
-    if (ext)
-    {
-      int len = ext - base;
-      strncpy(base_no_ext, base, len);
-      base_no_ext[len] = '\0';
-    }
-    else
-    {
-      strcpy(base_no_ext, base);
-    }
-
-    // Build final path
-    snprintf(error_log_path, sizeof(error_log_path), "semantic_errors_%s.txt", base_no_ext);
-  }
+  snprintf(error_log_path, sizeof(error_log_path), "semantic_errors_%s.txt", base_no_ext);
 
   SemanticContext *sem_ctx = create_semantic_context(error_log_path);
 
@@ -207,26 +253,6 @@ int main(int argc, char *argv[])
   {
     // Build symbol table filename: symboltable_<inputfilename>.out
     char sym_log_path[512];
-    const char *base = strrchr(input_file, '\\');
-    if (!base)
-      base = strrchr(input_file, '/');
-    base = base ? base + 1 : input_file;
-
-    // Remove extension from base filename
-    char base_no_ext[256];
-    const char *ext = strrchr(base, '.');
-    if (ext)
-    {
-      int len = ext - base;
-      strncpy(base_no_ext, base, len);
-      base_no_ext[len] = '\0';
-    }
-    else
-    {
-      strcpy(base_no_ext, base);
-    }
-
-    // Build final path
     snprintf(sym_log_path, sizeof(sym_log_path), "symboltable_%s.out", base_no_ext);
 
     FILE *sym_file = fopen(sym_log_path, "w");
@@ -330,8 +356,12 @@ int main(int argc, char *argv[])
   printf("================================================================================\n");
   printf("Generated files:\n");
   printf("  - %s (assembly code)\n", output_file);
+  if (gen_lex && token_output_created)
+    printf("  - tokens_%s.txt (lexical tokens)\n", base_no_ext);
   if (gen_ast)
-    printf("  - ast.out (abstract syntax tree)\n");
+    printf("  - ast_%s.out (abstract syntax tree)\n", base_no_ext);
+  printf("  - symboltable_%s.out (symbol tables)\n", base_no_ext);
+  printf("  - semantic_errors_%s.txt (semantic report)\n", base_no_ext);
   if (gen_sym)
     printf("  - symboltable.out (symbol tables)\n");
   if (gen_sem)
