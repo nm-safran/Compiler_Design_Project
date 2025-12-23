@@ -1,0 +1,17 @@
+build.bat
+
+compiler.exe tests\test1_simple.txt -all
+
+compiler.exe tests\test2_variables.txt -all
+
+compiler.exe tests\test3_arithmetic.txt
+
+compiler.exe tests\test4_class.txt
+
+compiler.exe tests\test5_errors_duplicate.txt
+
+compiler.exe tests\test6_errors_undeclared.txt
+
+compiler.exe tests\test7_type_mismatch.txt
+
+compiler.exe tests\test8_complex.txt
