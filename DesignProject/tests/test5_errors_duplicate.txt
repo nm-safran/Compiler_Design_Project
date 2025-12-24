@@ -3,4 +3,5 @@
 func testDuplicates() => void {
     local x : integer;
     local y : integer;
+    local y : integer;
 }
