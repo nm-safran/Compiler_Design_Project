@@ -21,7 +21,9 @@ extern ASTNode *root;
 extern int line, column;
 extern void set_token_output(FILE *output);
 extern void set_lexical_error_output(FILE *output);
+extern int has_lexical_error();
 extern void set_syntax_error_output(FILE *output);
+extern int has_syntax_error();
 
 void print_usage(const char *program_name)
 {
@@ -214,11 +216,21 @@ int main(int argc, char *argv[])
   {
     set_lexical_error_output(NULL);
     fclose(lexical_error_output);
+    // Delete the file if no errors occurred
+    if (!has_lexical_error())
+    {
+      remove(lexical_error_path);
+    }
   }
   if (syntax_error_output)
   {
     set_syntax_error_output(NULL);
     fclose(syntax_error_output);
+    // Delete the file if no errors occurred
+    if (!has_syntax_error())
+    {
+      remove(syntax_error_path);
+    }
   }
 
   if (parse_result != 0)
@@ -229,8 +241,10 @@ int main(int argc, char *argv[])
       set_token_output(NULL);
     }
     fprintf(stderr, "\n[ERROR] Parsing failed!\n");
-    fprintf(stderr, "[INFO] Lexical errors written to %s\n", lexical_error_path);
-    fprintf(stderr, "[INFO] Syntax errors written to %s\n", syntax_error_path);
+    if (has_lexical_error())
+      fprintf(stderr, "[INFO] Lexical errors written to %s\n", lexical_error_path);
+    if (has_syntax_error())
+      fprintf(stderr, "[INFO] Syntax errors written to %s\n", syntax_error_path);
     fclose(yyin);
     return 1;
   }

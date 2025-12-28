@@ -28,6 +28,7 @@ struct token* create_token(char* type, char* lexeme, int line, int column) {
 
 static FILE* token_output = NULL;
 static FILE* lexical_error_output = NULL;
+static int lexical_error_occurred = 0;
 
 void set_token_output(FILE* output) {
     token_output = output;
@@ -35,6 +36,10 @@ void set_token_output(FILE* output) {
 
 void set_lexical_error_output(FILE* output) {
     lexical_error_output = output;
+}
+
+int has_lexical_error() {
+    return lexical_error_occurred;
 }
 
 int line = 1, column = 1;
@@ -130,6 +135,7 @@ void update_position(char* text) {
     char error_msg[256];
     snprintf(error_msg, sizeof(error_msg), "Invalid character: %c at line %d, column %d\n", yytext[0], line, column);
     fprintf(stderr, "%s", error_msg);
+    lexical_error_occurred = 1;
     if (lexical_error_output) {
         fprintf(lexical_error_output, "%s", error_msg);
         fflush(lexical_error_output);

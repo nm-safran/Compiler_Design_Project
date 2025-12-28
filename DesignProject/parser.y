@@ -20,15 +20,21 @@ extern int yylex();
 extern FILE* yyin;
 extern int line, column;
 static FILE* syntax_error_output = NULL;
+static int syntax_error_occurred = 0;
 
 void set_syntax_error_output(FILE* output) {
     syntax_error_output = output;
+}
+
+int has_syntax_error() {
+    return syntax_error_occurred;
 }
 
 void yyerror(const char* s) {
     char error_msg[256];
     snprintf(error_msg, sizeof(error_msg), "Parse error at line %d: %s\n", line, s);
     fprintf(stderr, "%s", error_msg);
+    syntax_error_occurred = 1;
     if (syntax_error_output) {
         fprintf(syntax_error_output, "%s", error_msg);
         fflush(syntax_error_output);
