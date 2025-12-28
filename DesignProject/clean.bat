@@ -27,6 +27,8 @@ if exist semantic_errors.out del /Q semantic_errors.out
 if exist semantic_errors_*.txt del /Q semantic_errors_*.txt
 if exist symboltable_*.out del /Q symboltable_*.out
 if exist tokens_*.txt del /Q tokens_*.txt
+if exist lexical_errors_*.txt del /Q lexical_errors_*.txt
+if exist syntax_errors_*.txt del /Q syntax_errors_*.txt
 
 echo [5/5] Removing test result files...
 if exist test_results\*.s del /Q test_results\*.s

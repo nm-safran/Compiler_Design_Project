@@ -19,9 +19,20 @@ ASTNode* root = NULL;
 extern int yylex();
 extern FILE* yyin;
 extern int line, column;
+static FILE* syntax_error_output = NULL;
+
+void set_syntax_error_output(FILE* output) {
+    syntax_error_output = output;
+}
 
 void yyerror(const char* s) {
-    fprintf(stderr, "Parse error at line %d: %s\n", line, s);
+    char error_msg[256];
+    snprintf(error_msg, sizeof(error_msg), "Parse error at line %d: %s\n", line, s);
+    fprintf(stderr, "%s", error_msg);
+    if (syntax_error_output) {
+        fprintf(syntax_error_output, "%s", error_msg);
+        fflush(syntax_error_output);
+    }
 }
 %}
 

@@ -20,6 +20,8 @@ extern int yyparse();
 extern ASTNode *root;
 extern int line, column;
 extern void set_token_output(FILE *output);
+extern void set_lexical_error_output(FILE *output);
+extern void set_syntax_error_output(FILE *output);
 
 void print_usage(const char *program_name)
 {
@@ -170,12 +172,54 @@ int main(int argc, char *argv[])
     }
   }
 
+  // Setup lexical error output file (always created)
+  FILE *lexical_error_output = NULL;
+  char lexical_error_path[512];
+  snprintf(lexical_error_path, sizeof(lexical_error_path), "lexical_errors_%s.txt", base_no_ext);
+  lexical_error_output = fopen(lexical_error_path, "w");
+  if (lexical_error_output)
+  {
+    fprintf(lexical_error_output, "================================================================================\n");
+    fprintf(lexical_error_output, "                      LEXICAL ERROR REPORT\n");
+    fprintf(lexical_error_output, "================================================================================\n\n");
+    fprintf(lexical_error_output, "Input file: %s\n\n", input_file);
+    fflush(lexical_error_output);
+    set_lexical_error_output(lexical_error_output);
+  }
+
+  // Setup syntax error output file (always created)
+  FILE *syntax_error_output = NULL;
+  char syntax_error_path[512];
+  snprintf(syntax_error_path, sizeof(syntax_error_path), "syntax_errors_%s.txt", base_no_ext);
+  syntax_error_output = fopen(syntax_error_path, "w");
+  if (syntax_error_output)
+  {
+    fprintf(syntax_error_output, "================================================================================\n");
+    fprintf(syntax_error_output, "                       SYNTAX ERROR REPORT\n");
+    fprintf(syntax_error_output, "================================================================================\n\n");
+    fprintf(syntax_error_output, "Input file: %s\n\n", input_file);
+    fflush(syntax_error_output);
+    set_syntax_error_output(syntax_error_output);
+  }
+
   // ========================================================================
   // PHASE 1: LEXICAL ANALYSIS & SYNTAX ANALYSIS
   // ========================================================================
   printf("[PHASE 1] Lexical & Syntax Analysis...\n");
 
   int parse_result = yyparse();
+
+  // Close error output files
+  if (lexical_error_output)
+  {
+    set_lexical_error_output(NULL);
+    fclose(lexical_error_output);
+  }
+  if (syntax_error_output)
+  {
+    set_syntax_error_output(NULL);
+    fclose(syntax_error_output);
+  }
 
   if (parse_result != 0)
   {
@@ -185,6 +229,8 @@ int main(int argc, char *argv[])
       set_token_output(NULL);
     }
     fprintf(stderr, "\n[ERROR] Parsing failed!\n");
+    fprintf(stderr, "[INFO] Lexical errors written to %s\n", lexical_error_path);
+    fprintf(stderr, "[INFO] Syntax errors written to %s\n", syntax_error_path);
     fclose(yyin);
     return 1;
   }

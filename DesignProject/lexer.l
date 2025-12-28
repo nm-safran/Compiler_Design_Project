@@ -27,9 +27,14 @@ struct token* create_token(char* type, char* lexeme, int line, int column) {
 }
 
 static FILE* token_output = NULL;
+static FILE* lexical_error_output = NULL;
 
 void set_token_output(FILE* output) {
     token_output = output;
+}
+
+void set_lexical_error_output(FILE* output) {
+    lexical_error_output = output;
 }
 
 int line = 1, column = 1;
@@ -121,6 +126,15 @@ void update_position(char* text) {
 "."                 RETURN_TOKEN(DOT, "DELIMITER")
 ":"                 RETURN_TOKEN(COLON, "DELIMITER")
 
-.                   { printf("Invalid character: %s at line %d, column %d\n", yytext, line, column); column++; }
+.                   {
+    char error_msg[256];
+    snprintf(error_msg, sizeof(error_msg), "Invalid character: %c at line %d, column %d\n", yytext[0], line, column);
+    fprintf(stderr, "%s", error_msg);
+    if (lexical_error_output) {
+        fprintf(lexical_error_output, "%s", error_msg);
+        fflush(lexical_error_output);
+    }
+    column++;
+}
 
 %%
