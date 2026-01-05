@@ -3,7 +3,7 @@
 func main() => integer {
     local x : integer;
     local y : integer;
-    x := 10;
+    x := 10@5;
     y := 20;
     return (x);
 }
